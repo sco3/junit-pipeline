@@ -2,7 +2,9 @@ package pipeline;
 
 import static java.lang.System.out;
 import static java.util.regex.Pattern.compile;
+import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,12 +13,12 @@ import org.junit.Test;
 
 import com.lesfurets.jenkins.unit.BasePipelineTest;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
-public class TestShell extends BasePipelineTest {
-	private static final String SCRIPT = "script";
+public class TestPipelineShell extends BasePipelineTest {
+	// private static final String SCRIPT = "script";
+
+	private static final String CALL = "call";
 
 	@Before
 	@Override
@@ -51,23 +53,28 @@ public class TestShell extends BasePipelineTest {
 	}
 
 	@Test
-	public void testPipelineOk() {
+	public void testPipelineOk() throws Exception {
 		Script script = loadScript("testShell.groovy");
-		Binding bind = new Binding();
-		bind.setVariable(SCRIPT, script);
-		GroovyShell grShell = new GroovyShell(bind);
-		grShell.evaluate(SCRIPT + ".call(11)");
+		Method call = script.getClass().getDeclaredMethod(//
+				CALL, int.class //
+		);
+		call.invoke(script, 11);
 		printCallStack();
 	}
 
-	@Test(expected = Exception.class)
+	@Test
 	public void testPipelineFail() {
 		Script script = loadScript("testShell.groovy");
-		Binding bind = new Binding();
-		bind.setVariable(SCRIPT, script);
-		GroovyShell grShell = new GroovyShell(bind);
-		grShell.evaluate(SCRIPT + ".call(12)");
+		try {
+			Method call = script.getClass().getDeclaredMethod(//
+					CALL, int.class //
+			);
+			call.invoke(script, 12);
+		} catch (Exception e) {
+			String message = e.getCause().getMessage();
+			assertEquals("script returned exit code 1", message);
+		}
+
 	}
-	
-	
+
 }
