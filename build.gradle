@@ -1,0 +1,19 @@
+plugins {
+   id "java"
+   id "groovy"
+}
+
+group = "pipeline"
+version = "1.0.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.jenkins-ci.org/releases/' }
+}
+
+dependencies {
+    testImplementation "com.lesfurets:jenkins-pipeline-unit:1.19"
+    testImplementation "org.codehaus.groovy:groovy-all:3.0.20"
+    testImplementation "junit:junit:4.13.2"
+}
+
